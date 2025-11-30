@@ -52,7 +52,7 @@
   padding: 10px 18px;
   border: none;
   border-radius: 8px;
-  background: #cfcfcf;
+  background: #f54848;
   cursor: pointer;
 }
 
@@ -64,3 +64,11 @@
 .btn:hover {
   opacity: 0.8;
 }
+
+.timer {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #07f;
+}
+

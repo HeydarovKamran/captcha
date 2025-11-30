@@ -7,6 +7,9 @@ export function App() {
   const [input, setInput] = useState("");
   const [digits, setDigits] = useState([]);
 
+  const [elapsed, setElapsed] = useState(0);        // ⏱ время
+  const [timerRunning, setTimerRunning] = useState(false); // работает ли таймер
+
   // Generate random date in DD.MM.YYYY
   const generateRandomDate = () => {
     const start = new Date(2000, 0, 1).getTime();
@@ -32,11 +35,24 @@ export function App() {
     setInput("");
     setMessage("");
     shuffleDigits();
+    setElapsed(0);
+    setTimerRunning(false);
   };
 
   useEffect(() => {
     reset();
   }, []);
+
+  // ⏱ Реальный секундомер (100 раз в секунду)
+  useEffect(() => {
+    let interval;
+    if (timerRunning) {
+      interval = setInterval(() => {
+        setElapsed((t) => t + 0.01);
+      }, 10);
+    }
+    return () => clearInterval(interval);
+  }, [timerRunning]);
 
   const targetDigitsOnly = () => target.replace(/\D/g, "");
 
@@ -60,14 +76,29 @@ export function App() {
 
   const onDigitClick = (d) => {
     const digitsOnly = targetDigitsOnly();
+
+    // стартуем таймер на первом клике
+    if (input.length === 0) {
+      setTimerRunning(true);
+      setElapsed(0);
+    }
+
     if (input.length >= digitsOnly.length) return;
+
     const newInput = input + d;
     setInput(newInput);
 
+    // Если закончили ввод
     if (newInput.length === digitsOnly.length) {
-      if (newInput === digitsOnly)
-        setMessage("✅ Правильно! Отличная скорость!");
-      else setMessage("❌ Ошибка! Попробуй ещё.");
+      setTimerRunning(false); // стоп!
+
+      const time = elapsed.toFixed(2);
+
+      if (newInput === digitsOnly) {
+        setMessage(`✅ Верно! Время: ${time} сек`);
+      } else {
+        setMessage(`❌ Ошибка! Время: ${time} сек`);
+      }
     } else {
       setMessage("");
     }
@@ -81,6 +112,8 @@ export function App() {
   return (
     <div class="container">
       <h1>Captcha</h1>
+
+      <div class="timer">⏱ {elapsed.toFixed(2)} сек</div>
 
       <div class="label">
         Tarixi yazin: <b>{target}</b>
@@ -100,11 +133,9 @@ export function App() {
 
       <div class="buttons">
         <button onClick={reset} class="btn main">
-          Обновить
+          Refresh
         </button>
-        <button onClick={undoLast} class="btn">
-          Отменить
-        </button>
+        <button onClick={undoLast} class="btn"> Delete </button>
       </div>
     </div>
   );
